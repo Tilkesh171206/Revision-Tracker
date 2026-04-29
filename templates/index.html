@@ -33,7 +33,7 @@
                     {% for revision in today_revisions %}
                         <div class="revision-card today">
                             <div class="topic-info">
-                                <h3>{{ revision.topic.name }}</h3>
+                                <h3>{{ revision.topic_name }}</h3>
                                 <p class="interval-info">Level: {{ revision.interval_level }} | Last interval: {{ revision.last_interval_days }} days</p>
                             </div>
                             <div class="action-buttons">
@@ -65,7 +65,7 @@
                     {% for revision in upcoming_revisions %}
                         <div class="revision-card upcoming">
                             <div class="topic-info">
-                                <h3>{{ revision.topic.name }}</h3>
+                                <h3>{{ revision.topic_name }}</h3>
                                 <p class="date-info">Next revision: {{ revision.next_revision_date.strftime('%d %b %Y') }}</p>
                                 <p class="interval-info">Level: {{ revision.interval_level }} | Last interval: {{ revision.last_interval_days }} days</p>
                             </div>

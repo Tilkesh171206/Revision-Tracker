@@ -51,15 +51,40 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
     try:
         today = date.today()
         
-        today_revisions = db.query(Revision).join(Topic).filter(
+        today_revisions_raw = db.query(Revision).join(Topic).filter(
             Revision.next_revision_date == today,
             Revision.status == RevisionStatus.PENDING
         ).order_by(Revision.next_revision_date).all()
         
-        upcoming_revisions = db.query(Revision).join(Topic).filter(
+        upcoming_revisions_raw = db.query(Revision).join(Topic).filter(
             Revision.next_revision_date > today,
             Revision.status == RevisionStatus.PENDING
         ).order_by(Revision.next_revision_date).limit(10).all()
+        
+        # Convert ORM objects to plain dictionaries
+        today_revisions = [
+            {
+                "id": r.id,
+                "topic_id": r.topic_id,
+                "topic_name": r.topic.name,
+                "interval_level": r.interval_level,
+                "last_interval_days": r.last_interval_days,
+                "next_revision_date": r.next_revision_date
+            }
+            for r in today_revisions_raw
+        ]
+        
+        upcoming_revisions = [
+            {
+                "id": r.id,
+                "topic_id": r.topic_id,
+                "topic_name": r.topic.name,
+                "interval_level": r.interval_level,
+                "last_interval_days": r.last_interval_days,
+                "next_revision_date": r.next_revision_date
+            }
+            for r in upcoming_revisions_raw
+        ]
         
         return templates.TemplateResponse("index.html", {
             "request": request,
@@ -67,7 +92,7 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
             "upcoming_revisions": upcoming_revisions,
             "today": today
         })
-    except SQLAlchemyError as e:
+    except SQLAlchemyError:
         return templates.TemplateResponse("index.html", {
             "request": request,
             "error": "Database error occurred",
