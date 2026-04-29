@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEET Spaced Repetition Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 NEET Spaced Repetition Tracker</h1>
+            <p>Master your NEET preparation with adaptive learning</p>
+        </header>
+
+        <!-- Add Topic Form -->
+        <section class="add-topic">
+            <h2>Add New Topic</h2>
+            <form method="post" action="/add" class="topic-form">
+                <input type="text" name="topic_name" placeholder="Enter topic name..." required>
+                <button type="submit">Add Topic</button>
+            </form>
+            {% if request.query_params.get('error') %}
+                <div class="error">{{ request.query_params.get('error') }}</div>
+            {% endif %}
+        </section>
+
+        <!-- Today's Revisions -->
+        <section class="revisions-section">
+            <h2>📖 Today's Revisions</h2>
+            {% if today_revisions %}
+                <div class="revisions-grid">
+                    {% for revision in today_revisions %}
+                        <div class="revision-card today">
+                            <div class="topic-info">
+                                <h3>{{ revision.topic.name }}</h3>
+                                <p class="interval-info">Level: {{ revision.interval_level }} | Last interval: {{ revision.last_interval_days }} days</p>
+                            </div>
+                            <div class="action-buttons">
+                                <form method="post" action="/review/{{ revision.id }}" class="difficulty-form">
+                                    <button type="submit" name="difficulty" value="easy" class="btn btn-easy">Easy</button>
+                                    <button type="submit" name="difficulty" value="medium" class="btn btn-medium">Medium</button>
+                                    <button type="submit" name="difficulty" value="hard" class="btn btn-hard">Hard</button>
+                                </form>
+                                <form method="post" action="/delete/{{ revision.topic.id }}" class="delete-form">
+                                    <button type="submit" class="btn btn-delete">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <p>No revisions scheduled for today! 🎉</p>
+                    <p>Add new topics to get started.</p>
+                </div>
+            {% endif %}
+        </section>
+
+        <!-- Upcoming Revisions -->
+        <section class="revisions-section">
+            <h2>📅 Upcoming Revisions</h2>
+            {% if upcoming_revisions %}
+                <div class="revisions-grid">
+                    {% for revision in upcoming_revisions %}
+                        <div class="revision-card upcoming">
+                            <div class="topic-info">
+                                <h3>{{ revision.topic.name }}</h3>
+                                <p class="date-info">Next revision: {{ revision.next_revision_date.strftime('%d %b %Y') }}</p>
+                                <p class="interval-info">Level: {{ revision.interval_level }} | Last interval: {{ revision.last_interval_days }} days</p>
+                            </div>
+                            <div class="action-buttons">
+                                <form method="post" action="/delete/{{ revision.topic.id }}" class="delete-form">
+                                    <button type="submit" class="btn btn-delete">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <p>No upcoming revisions scheduled.</p>
+                </div>
+            {% endif %}
+        </section>
+
+        <!-- Statistics -->
+        <section class="stats-section">
+            <h2>📊 Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>{{ today_revisions|length }}</h3>
+                    <p>Today's Tasks</p>
+                </div>
+                <div class="stat-card">
+                    <h3>{{ upcoming_revisions|length }}</h3>
+                    <p>Upcoming Tasks</p>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
